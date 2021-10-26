@@ -1,0 +1,3 @@
+id,name,description,type_tax_use,tax_sunat/id,type_tax_sunat,amount_type,python_compute,amount,account_id/id,refund_account_id/id,tax_group_id/id,tag_ids/id
+rentacuartacero,RENTA 4ta 0%,RENTA 4ta 0%,Compras,odoope_einvoice_base.e05_99,130 - RENTA 4ta,Porcentaje sobre el precio,,0,l10n_pe.1_chart40172,l10n_pe.1_chart40172,l10n_pe.tax_group_rentacuarta_0,l10n_pe.tax_tag_purchase_rentacuarta_0
+rentacuartaocho,RENTA 4ta 8%,RENTA 4ta 8%,Compras,odoope_einvoice_base.e05_99,130 - RENTA 4ta,Código Python,result = price_unit * 0.08 * -1,0,l10n_pe.1_chart40172,l10n_pe.1_chart40172,l10n_pe.tax_group_rentacuarta_8,l10n_pe.tax_tag_purchase_rentacuarta_8

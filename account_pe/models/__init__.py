@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from . import account_move
-from . import account_journal
-from . import invoice_payment
+from . import account_pe
+from . import partner
+from . import account_move_pe
+from . import account_invoice_pe
+from . import account_payment_pe

@@ -1,4 +1,8 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_account_move_payment,account.move.payment,model_invoice_payment,account.group_account_invoice,1,1,1,1
-
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_account_invoice_line2_user","access.account.invoice.line2.user","model_account_invoice_line2","base.group_user",1,0,0,0
+"access_account_invoice_line2_manager","access.account.invoice.line2.manager","model_account_invoice_line2","account.group_account_manager",1,1,1,1
+"access_account_invoice_line2_invoice","access.account.invoice.line2.invoice","model_account_invoice_line2","account.group_account_invoice",1,1,1,1
+"access_account_invoice_line_group_user","access.account.invoice.line.group.user","model_account_invoice_line_group","base.group_user",1,0,0,0
+"access_account_invoice_line_group_manager","access.account.invoice.line.group.manager","model_account_invoice_line_group","account.group_account_manager",1,1,1,1
+"access_account_invoice_line_group_invoice","access.account.invoice.line.group.invoice","model_account_invoice_line_group","account.group_account_invoice",1,1,1,1
 

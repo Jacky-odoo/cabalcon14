@@ -1,2 +1,4 @@
-from . import account_debit_note
-from . import account_move_reversal
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from . import account_invoice_refund

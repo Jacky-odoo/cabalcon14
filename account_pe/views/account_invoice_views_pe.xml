@@ -1,0 +1,748 @@
+<odoo>
+    <data>
+<!-- FACTURA, NC y ND DE CLIENTE Y PROVEEDOR - VISTA SEARCH -->        
+        <record id="view_account_invoice_filter_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.select.sunat</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+            <field name="arch" type="xml">
+                <field name="number" position="before">
+                    <filter name="currency_pen" string="Soles" domain="[('currency_id','=',163)]"/>
+                    <filter name="currency_dol" string="Dólares" domain="[('currency_id','=',3)]"/>
+                    <separator/>
+                    <filter name="consaldo" string="Por Cobrar/Pagar" domain="[('residual_signed','>',0),('state','=','open')]"/>
+                    <separator/>
+                </field>
+                <filter name="group_by_partner_id" position="before">
+                    <filter name="group_by_currency" string="Mes Contable" context="{'group_by':'date'}"/>
+                    <filter name="group_by_journal_libro" string="Tipo Libro" context="{'group_by':'journal_libro'}"/>
+                    <filter name="group_by_journal" string="Tipo Comprobante" context="{'group_by':'journal_id'}"/>
+                    <filter name="group_by_currency" string="Moneda" context="{'group_by':'currency_id'}"/>
+                </filter>
+            </field>
+        </record>
+        
+<!-- FACTURA CLIENTE - VISTA TREE -->
+        <record id="invoice_tree_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.tree.sunat</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_tree"/>
+            <field name="arch" type="xml">
+                
+                <field name="state" position="replace"/>
+                <field name="journal_id" position="replace"/>
+                <field name="date_invoice" position="replace"/>
+                <field name="number" position="replace"/>
+                <field name="company_id" position="replace"/>
+                <field name="user_id" position="replace"/>
+                <field name="origin" position="replace"><field name="origin" string="Doc.Origen"/></field>
+                
+                <field name="partner_id" position="before">
+                    <field name="state"/>
+                    <field name="journal_id" invisible="0" string="Tipo Comprobante"/>
+                    <field name="journal_libro" invisible="1" string="Libro Contable"/>
+                    <field name="date" string="Fec.Contable"/>
+                    <field name="date_invoice" string="Fec.Factura"/>
+                    <field name="sec_journal_libro" groups="base.group_no_one"/>
+                    <field name="number"/>
+                </field>
+                <field name="date_due" position="replace">
+                    <field name="date_due" string="Fec.Vcto"/>
+                    <field name="date_programada" string="Prog.Pago"/>
+                </field>
+                <field name="company_currency_id" position="after">
+                    <field name="user_id"/>
+                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    <!-- KB Columna de tree se oculta según el contexto -->
+                    <field name="refund_invoice_ids" string="Notas de Crédito" widget="many2many_tags" invisible="context.get('esnotacredito',False) or context.get('esnotadebito',False)"/>
+                    <field name="origin_invoice_ids" string="Facturas" widget="many2many_tags" invisible="not context.get('esnotacredito',False)"/>
+                    <field name="nd_ids" string="Notas de Débito" widget="many2many_tags" invisible="context.get('esnotacredito',False) or context.get('esnotadebito',False)"/>
+                    <field name="nd_invoice_ids" string="Facturas ND" widget="many2many_tags" invisible="not context.get('esnotadebito',False)"/>
+                </field>
+            </field>
+        </record>
+        
+
+<!-- FACTURA PROVEEDOR - VISTA TREE -->
+        <record id="invoice_supplier_tree_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.tree.sunat</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_tree"/>
+            <field name="arch" type="xml">
+                <field name="state" position="replace"/>
+                <field name="journal_id" position="replace"/>
+                <field name="date_invoice" position="replace"/>
+                <field name="number" position="replace"/>
+                <field name="reference" position="replace"/>
+                <field name="company_id" position="replace"/>
+                <field name="origin" position="replace"><field name="origin" string="Doc.Origen"/></field>
+                
+                <field name="partner_id" position="before">
+                    <field name="state"/>
+                    <field name="journal_id" invisible="0" string="Tipo Comprobante"/>
+                    <field name="journal_libro" invisible="1" string="Libro Contable"/>
+                    <field name="date" string="Fec.Contable"/>
+                    <field name="date_invoice" string="Fec.Factura"/>
+                    <field name="sec_journal_libro" groups="base.group_no_one"/>
+                    <field name="number" groups="base.group_no_one"/>
+                    <field name="reference" invisible="0" string="#Proveedor"/>
+                </field>
+                <field name="date_due" position="replace">
+                    <field name="date_due" string="Fec.Vcto"/>
+                    <field name="date_programada" string="Prog.Pago"/>
+                </field>
+                <field name="company_currency_id" position="after">
+                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    <field name="refund_invoice_ids" string="Notas de Crédito" widget="many2many_tags" invisible="context.get('esnotacredito',False) or context.get('esnotadebito',False)"/>
+                    <field name="origin_invoice_ids" string="Facturas NC" widget="many2many_tags" invisible="not context.get('esnotacredito',False)"/>
+                    <field name="nd_ids" string="Notas de Débito" widget="many2many_tags" invisible="context.get('esnotacredito',False) or context.get('esnotadebito',False)"/>
+                    <field name="nd_invoice_ids" string="Facturas ND" widget="many2many_tags" invisible="not context.get('esnotadebito',False)"/>
+                </field>
+            </field>
+        </record>
+        
+
+<!-- FACTURA DE CLIENTE - VISTA FORM -->
+        <!-- Reubico el journal_id en las Facturas de Venta -->
+        <record id="account_invoice_form_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.form.sunat</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <!-- Pongo las cuentas analyticas como obligatorias -->
+                <field name="account_analytic_id" position="replace">
+                    <field name="account_analytic_id" groups="analytic.group_analytic_accounting"
+                        domain="[('company_id', '=', parent.company_id)]"
+                        context="{'default_partner_id': parent.partner_id}"
+                        required="1"/>
+                    
+                </field>
+                
+                <!-- NO SE PUEDE SELECCIONAR POR string, no tengo como cambiar los nombres, probar por traducción -->
+                <!-- <label string="Draft Invoice" position="replace">
+                    <label string="Comprobante Borrador" attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','!=','out_invoice')]}"/>
+                </label>
+                <label string="Draft Credit Note" position="replace">
+                    <label string="Nota de Crédito Borrador" attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','!=','out_refund')]}"/>
+                </label> -->
+                
+                <!-- No permito que el botón de crear NC se muestre cuando estemos en ND -->
+                <button name="%(account.action_account_invoice_refund)d" position="replace">
+                    <button name="%(account.action_account_invoice_refund)d" type='action' string='Nota de Crédito' groups="account.group_account_invoice" 
+                        attrs="{'invisible': ['|', '|', ('type', '=', 'out_refund'), ('state', 'not in', ('open','paid')), ('esnotadebito', '=', True)]}"/>
+                </button>
+                
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='journal_id']" position="replace"/>
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='company_id']" position="replace"/>
+                
+                <!-- Compañía y Diario lo ubico al inicio -->
+                <xpath expr="//sheet/group/group/field[@name='partner_id']" position="before">
+                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                    <field name="tipo_operacion" options="{'no_create': True}" attrs="{'invisible': [('type','!=','out_invoice')]}"/>
+                    <field name="journal_id" string="Tipo Comprobante" groups="account.group_account_user"
+                        options="{'no_create': True}" attrs="{'readonly':[('move_name','!=',False)]}"/>
+                    <field name="type_nc" options="{'no_create': True}" attrs="{'invisible': [('type','!=','out_refund'), ('type', '!=', 'in_refund')], 'required': ['|', '|', ('type', '=', 'out_refund'), ('type', '=', 'in_refund'), ('esnotacredito', '=', True)]}"/>
+                    <field name="type_nd" options="{'no_create': True}" attrs="{'invisible': [('esnotadebito','=', False)], 'required': [('esnotadebito', '=', True)]}"/>
+                </xpath>
+                
+                <!-- Cliente para cambiarle el Dominio -->
+                <field name="partner_id" position="replace">
+                    <field string="Cliente" name="partner_id"
+                        context="{'search_default_customer':1, 'show_address': 1, 'default_company_type': 'company'}"
+                        options="{'always_reload': True, 'no_quick_create': True, 'no_create': True}"
+                        domain="[('customer', '=', True), ('parent_id', '=', None)]"/>    
+                </field>
+                
+                <!-- Guias de Remision -->
+                <xpath expr="//sheet/group/group/field[@name='cash_rounding_id']" position="after">
+                    <!-- <separator colspan="2"/> -->
+                    <field name="sender_referral_guide" attrs="{'invisible': [('type','!=','out_invoice')]}"/>
+                    <field name="carrier_referral_guide" attrs="{'invisible': [('type','!=','out_invoice')]}"/>
+                </xpath>
+                        
+                <!-- DETRACCIONES -->
+                <xpath expr="//sheet/group/group[2]" position="inside">
+                    <separator colspan="2"/>
+                    <!-- <field name="tienedetraccion" string="Sujeto a Detracción?" attrs="{'invisible': ['|', ('type','in',['out_refund', 'in_refund']), ('esnotadebito', '=', True)]}"/> -->
+                    <field name="tienedetraccion" string="Sujeto a Detracción?"/>
+                    <field name="det_code" options="{'no_create': True}" attrs="{'invisible': [('tienedetraccion', '=', False)], 'required': [('tienedetraccion', '=', True)]}"/>
+<!--                    <field name="det_code" options="{'no_create': True}" attrs="{'invisible': ['|', '|', ('tienedetraccion', '=', False), ('type', '!=', 'out_invoice'), ('esnotadebito', '=', True)], 'required': [('tienedetraccion', '=', True)]}"/> -->
+                    <field name="detraccion_id" widget="selection" string="%% Detracción" domain="[('type_tax_sunat', '=', 50)]" attrs="{'invisible': [('tienedetraccion','=',False)], 'required': [('tienedetraccion', '=', True)]}"/>
+                    <field name="det_fecpago" string="Fecha de Pago Detracción" attrs="{'invisible': [('tienedetraccion','=',False)]}"/>
+                    <field name="det_nropago" string="Documento de Pago" attrs="{'invisible': [('tienedetraccion','=',False)]}"/>
+                </xpath>
+                
+                <!-- Posición Fiscal lo oculto -->
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='fiscal_position_id']" position="replace">
+                    <field name="fiscal_position_id" options="{'no_create': True}" invisible="1"/>
+                </xpath>
+                
+                <!-- Impuestos los traigo al frente -->
+                <field name="tax_line_ids" position="replace"/>
+                <group class="oe_subtotal_footer oe_right" position="after">
+                    <div style="width: 50%%">
+                        <field name="tax_line_ids">
+                            <tree editable="bottom" string="Taxes" create="0">
+                                <field name="name"/>
+                                <!--Need invisible fields for on_change to create all necessary info -->
+                                <field name="tax_id" invisible="1"/>
+                                <field name="sequence" invisible="1"/>
+                                <field name="manual" invisible="1"/>
+                                <field name="account_id" groups="account.group_account_user"/>
+                                <field name="account_analytic_id"/>
+                                <field name="base"/>
+                                <field name="amount" invisible="1"/>
+                                <field name="amount_rounding" invisible="1"/>
+                                <field name="amount_total"/>
+                                <field name="currency_id" invisible="1" force_save="1"/>
+                            </tree>
+                        </field>
+                    </div>
+                </group>
+                <!-- Información Extra -->
+                <field name="comment" position="after">
+                    <field name="comment_extra" placeholder="Información Adicional..."/>
+                </field>
+                <!-- Tipo de Comprobante SUNAT lo agrego -->
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='move_id']" position="after">
+                    <field name="journal_tipocomprobante_id" string="Tipo SUNAT"/>
+                    <field name="eselectronica"/>
+                    <field name="journal_libro"/>
+                    <field name="sec_journal_libro" readonly="1"/>
+                    <field name="serie"/> <!-- attrs="{'invisible':[('type','=','out_invoice','out_refund')]}" -->
+                    <field name="correlativo"/> <!-- attrs="{'invisible':[('type','=','out_invoice','out_refund')]}" -->
+                    <field name="amount_in_text"/>
+                    <field name="esnotacredito"/>
+                    <field name="esnotadebito"/>
+                </xpath>
+                
+                <!-- Lineas alternativas de factura para la impresión -->
+                <!-- <notebook position="inside"> -->
+                <page name="other_info" position="before">
+                    <page string="Líneas Agrupadas" attrs="{'invisible': [('is_gruped', '=', False)]}">
+                        <group colspan="4">
+                            <group groups="base.group_no_one">
+                                <field name="is_gruped" string="Agrupar los productos por precio?"/>
+                            </group>
+                            <group>
+                                <button name="invoice_line_group" type='object' string='Genera Lineas x Producto' groups="account.group_account_invoice"
+                                    attrs="{'invisible': [('state', 'not in', ('draft'))]}"/>
+                            </group>
+                             
+                        <!-- attrs="{'invisible': ['|', '|', ('type', '=', 'out_refund'), ('state', 'not in', ('open','paid')), ('esnotadebito', '=', True)]}"/> -->
+                        </group>
+                        <field name="invoice_line_group_ids" nolabel="1" widget="one2many_list" options="{'no_create': True}" attrs="{'invisible': [('is_gruped', '=', False)]}">
+                            <tree string="Líneas agrupadas" editable="bottom" options="{'no_create': True}">
+                                <field name="invoice_id" invisible="1"/>
+                                <field name="product_id" domain="[('sale_ok','=',True)]"/>
+                                <field name="name"/>
+                                <field name="quantity"/>
+                                <field name="uom_id" groups="product.group_uom"/>
+                                <field name="price_unit"/>
+                                <field name="invoice_line_tax_ids" widget="many2many_tags" options="{'no_create': True}" context="{'type':parent.type}"
+                                    domain="[('type_tax_use','=','sale'),('company_id', '=', parent.company_id)]"/>
+                                <field name="price_subtotal"/>
+                                <field name="currency_id" invisible="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page string="Impresión Alternativa">
+                        <field name="invoice_line_ids2" nolabel="1" widget="one2many_list">
+                            <tree string="Impresión Alternativa" editable="bottom">
+                                <field name="invoice_id" invisible="1"/>
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="price_unit" string="Importe sin IGV" sum="Importe sin IGV"/>
+                            </tree>
+                        </field>
+                        <group class="oe_subtotal_footer oe_right" groups="base.group_no_one">
+                            <field name="subtotal2" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </page>
+                </page>
+                <!-- </notebook> -->
+                
+                <!-- Modulo  Integrado OCA - Notas de Credito -->
+                <notebook position="inside">
+                    <page name="refunds" string="Notas de Crédito" attrs="{'invisible':[('esnotadebito','=',True)]}">
+                        <group attrs="{'invisible':[('type', 'not in', ['in_refund', 'out_refund'])]}">
+                            <separator string="Descripción" colspan="4"/>
+                            <field name="refund_reason" nolabel="1"/>
+                            <separator string="Factura Original" colspan="4"/>
+                            <field name="origin_invoice_ids" nolabel="1">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Factura Original">
+                                    <field name="partner_id" string="Cliente"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="date_due" string="Vencimiento"/>
+                                    <field name="number" string="Número"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="amount_total_signed" string="Total"/>
+                                    <field name="residual_signed" string="Due"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group attrs="{'invisible':[('type', 'not in', ['in_invoice', 'out_invoice'])]}">
+                            <separator string="Notas de Crédito" colspan="4"/>
+                            <field name="refund_invoice_ids" nolabel="1">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Notas de Crédito">
+                                    <field name="partner_id" string="Cliente"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="number" string="Numero"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="type_nc" string="Razón NC"/>
+                                    <field name="amount_total" string="Total"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </notebook>
+                
+                <!-- Pestaña de Notas de Débito -->
+                <notebook position="inside">
+                    <page name="notasdebito" string="Notas de Débito" attrs="{'invisible':[('esnotacredito','=',True)]}">
+                        <group attrs="{'invisible':[('esnotadebito','=',False)]}">
+                            <separator string="Factura Original" colspan="4"/>
+                            <field name="nd_invoice_ids" nolabel="1" 
+                                domain="[('esnotadebito', '=', False), ('type','=','out_invoice'), ('state', 'in', ['open', 'paid'])]">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Factura Original">
+                                    <field name="partner_id" string="Cliente"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="date_due" string="Vencimiento"/>
+                                    <field name="number" string="Número"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="amount_total_signed" string="Total"/>
+                                    <field name="residual_signed" string="Due"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group attrs="{'invisible':[('esnotadebito','=',True)]}">
+                            <separator string="Notas de Débito" colspan="4"/>
+                            <field name="nd_ids" nolabel="1" domain="[('esnotadebito', '=', True), ('type', '=', 'out_invoice'), ('state', '=', 'draft')]">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Notas de Débito">
+                                    <field name="partner_id" string="Clientes"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="number" string="Número"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="type_nd" string="Razón ND"/>
+                                    <field name="amount_total" string="Total"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+
+<!-- FACTURA DE PROVEEDOR - VISTA FORM -->        
+        <!-- Modifico el ancho y los atributos de journal_id en las Facturas de Compra -->
+        <record id="account_invoice_supplier_form_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.supplier.form.sunat</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <!-- Pongo las cuentas analiticas como obligatorias -->
+                <field name="account_analytic_id" position="replace">
+                    <field name="account_analytic_id" groups="analytic.group_analytic_accounting"
+                        domain="[('company_id', '=', parent.company_id)]"
+                        context="{'default_partner_id': parent.partner_id}"
+                        required="1"/>
+                </field>
+                
+                <!-- No permito que el botón de crear NC se muestre cuando estemos en ND -->
+                <button name="%(account.action_account_invoice_refund)d" position="replace">
+                    <button name="%(account.action_account_invoice_refund)d" type='action' string='Nota de Crédito' groups="account.group_account_invoice" 
+                        attrs="{'invisible': ['|', '|', ('type', 'in', ['in_refund','out_refund']),('state','not in',('open','paid')), ('esnotadebito', '=', True)]}"/>
+                </button>
+                
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='journal_id']" position="replace"/>
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='company_id']" position="replace"/>
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='name']" position="replace"/>
+                
+                <!-- Compañía y Diario lo ubico al inicio -->
+                <xpath expr="//sheet/group/group/field[@name='partner_id']" position="before">
+                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                    <field name="journal_id" string="Tipo Comprobante" groups="account.group_account_user" 
+                        options="{'no_create': True}" attrs="{'readonly':[('move_name','!=',False)]}"/>
+                    <field name="type_nc" options="{'no_create': True}" attrs="{'invisible': [('type','!=','out_refund'), ('type', '!=', 'in_refund')], 'required' : ['|', '|', ('type', '=', 'out_refund'), ('type', '=', 'in_refund'), ('esnotacredito', '=', True)]}"/>
+                    <field name="type_nd" options="{'no_create': True}" attrs="{'invisible': [('esnotadebito','=', False)], 'required' : [('esnotadebito', '=', True)]}"/>
+                </xpath>
+                
+                <!-- Proveedor para cambiarle el Dominio -->
+                <field name="partner_id" position="replace">
+                    <field string="Proveedor" name="partner_id"
+                        context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1, 'default_company_type': 'company'}"
+                        domain="[('supplier', '=', True), ('parent_id', '=', None)]"
+                        options="{'no_create': True}"/>
+                </field>
+                
+                <!-- Tipo de Comprobante SUNAT lo agrego -->
+                <!-- Num. Doc. de Proveedor será llenado por el onchange de serie y correlativo -->
+                <!-- Referencia/Descripción -->
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='move_id']" position="after">
+                    <field name="journal_tipocomprobante_id" string="Tipo SUNAT"/>
+                    <field name="journal_libro" string="Libro Contable"/>
+                    <field name="sec_journal_libro"/>
+                    <field name="serie"/> <!-- attrs="{'invisible':[('type','=','out_invoice','out_refund')]}" -->
+                    <field name="correlativo"/> <!-- attrs="{'invisible':[('type','=','out_invoice','out_refund')]}" -->
+                    <field name="reference" string="Num. Doc. Proveedor" readonly="1"/>
+                    <field name="name"/>
+                    <field name="esnotacredito"/>
+                    <field name="esnotadebito"/>
+                </xpath>
+                
+                <!-- Posición Fiscal lo oculto -->
+                <xpath expr="//sheet/notebook/page/group/group/field[@name='fiscal_position_id']" position="replace">
+                    <field name="fiscal_position_id" options="{'no_create': True}" placeholder="Auto-detect" invisible="1"/>
+                </xpath>
+                
+                <!-- Serie y Correlativo los agrego -->
+                <field name="reference" position="replace">
+                    <label for="seriec" string="Doc. Proveedor"/>
+                    <div>
+                        <field name="seriec" class="oe_inline" placeholder="Serie..."/>-
+                        <field name="correlativoc" class="oe_inline" placeholder="Correlativo..." attrs="{'required': [('type', 'in', ['in_invoice', 'in_refund'])]}"/>
+                    </div>
+                    <field name="tienedetraccion" string="Sujeto a Detracción?"/>
+                    <field name="detraccion_id" widget="selection" string="%% Detracción" domain="[('type_tax_sunat', '=', 50)]" attrs="{'invisible': [('tienedetraccion','=',False)], 'required': [('tienedetraccion','=',True)]}"/>
+                    <field name="det_fecpago" string="Fecha de Pago Detracción" attrs="{'invisible': [('tienedetraccion','=',False)]}"/>
+                    <field name="det_nropago" string="Documento de Pago" attrs="{'invisible': [('tienedetraccion','=',False)]}"/>
+                    <!-- <field name="detraccion_id" widget="selection" string="%% Detracción" domain="[('type_tax_sunat', '=', 50)]" attrs="{'invisible': [('tienedetraccion','=',False)]}"/>
+                    <field name="det_fecpago" string="Fecha de Pago Detracción" attrs="{'invisible': [('tienedetraccion','=',False)]}"/>
+                    <field name="det_nropago" string="Documento de Pago" attrs="{'invisible': [('tienedetraccion','=',False)]}"/> -->
+                </field>
+                
+                <!-- Módulo integrado de OCA - Pestaña de Notas de Crédito -->
+                <notebook position="inside">
+                <!-- Pestaña de Notas de Crédito -->
+                    <page name="refunds" string="Notas de Crédito" attrs="{'invisible':[('esnotadebito','=',True)]}">
+                        <group attrs="{'invisible':[('type', 'not in', ['in_refund', 'out_refund'])]}">
+                            <separator string="Descripción" colspan="4"/>
+                            <field name="refund_reason" nolabel="1"/>
+                            <separator string="Factura Original" colspan="4"/>
+                            <field name="origin_invoice_ids" nolabel="1">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Factura Original">
+                                    <field name="partner_id" string="Proveedor"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="date_due" string="Vencimiento"/>
+                                    <field name="number" string="Número"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="amount_total_signed" string="Total"/>
+                                    <field name="residual_signed" string="Due"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group attrs="{'invisible':[('type', 'not in', ['in_invoice', 'out_invoice'])]}">
+                            <separator string="Notas de Crédito" colspan="4"/>
+                            <field name="refund_invoice_ids" nolabel="1">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Notas de Crédito">
+                                    <field name="partner_id" string="Proveedor"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="number" string="Número"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="type_nc" string="Razón NC"/>
+                                    <field name="amount_total" string="Total"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                <!-- Pestaña de Notas de Débito -->
+                    <page name="notasdebito" string="Notas de Débito" attrs="{'invisible':[('esnotacredito','=',True)]}">
+                        <group attrs="{'invisible':[('esnotadebito','=',False)]}">
+                            <separator string="Factura Original" colspan="4"/>
+                            <field name="nd_invoice_ids" nolabel="1" domain="[('esnotadebito', '=', False), ('type','=','in_invoice'), ('state', 'in', ['open', 'paid'])]">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Factura Original">
+                                    <field name="partner_id" string="Proveedor"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="date_due" string="Vencimiento"/>
+                                    <field name="number" string="Numero"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="amount_total_signed" string="Total"/>
+                                    <field name="residual_signed" string="Due"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group attrs="{'invisible':[('esnotadebito','=',True)]}">
+                            <separator string="Notas de Débito" colspan="4"/>
+                            <field name="nd_ids" nolabel="1" domain="[('esnotadebito', '=', True), ('type', '=', 'out_invoice'), ('state', '=', 'draft')]">
+                                <tree decoration-info="state == 'draft'"
+                                      decoration-muted="state == 'cancel'"
+                                      string="Notas de Débito">
+                                    <field name="partner_id" string="Proveedor"/>
+                                    <field name="date_invoice" string="Fecha"/>
+                                    <field name="number" string="Número"/>
+                                    <field name="reference" string="Referencia"/>
+                                    <field name="origin" string="Origen"/>
+                                    <field name="type_nd" string="Razón ND"/>
+                                    <field name="amount_total" string="Total"/>
+                                    <field name="state" string="Estado"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </notebook>
+                
+                <!-- Modifico la tabla de Impuestos para mostrar el monto Base por Impuesto -->
+                <field name="amount" position="before">
+                    <field name="base"/>
+                </field>
+            </field>
+        </record>
+
+
+<!-- Reemplazo la acción de la venta de Factura de Cliente para modificar domain incluyendo el filtro de esnotadebito -->
+<!-- En el Python estoy asignando dinamicamente el domain de Journal dependiento del context que envío desde acá -->
+        <record id="account.action_invoice_tree1" model="ir.actions.act_window">
+            <field name="name">Customer Invoices</field>
+            <field name="res_model">account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('esnotacredito','=',False),('esnotadebito','=',False),('type','=','out_invoice')]</field>
+            <field name="context">{'type':'out_invoice', 'journal_type': 'sale', 'esnotacredito': False, 'esnotadebito': False}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        </record>
+        
+<!-- Modifico el Context para el domain dinamico de journal -->
+        <record id="account.action_invoice_out_refund" model="ir.actions.act_window">
+            <field name="name">Customer Credit Notes</field>
+            <field name="res_model">account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','out_refund')]</field>
+            <field name="context">{'default_type': 'out_refund', 'type': 'out_refund', 'journal_type': 'sale', 'esnotacredito': True, 'esnotadebito': False}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        </record>
+        
+<!-- Creo el Menú de Nota de Débito Cliente -->
+        <record id="action_invoice_nd" model="ir.actions.act_window">
+            <field name="name">Notas de Débito de Cliente</field>
+            <field name="res_model">account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','out_invoice'),('esnotadebito','=',True)]</field>
+            <field name="context">{'type':'out_invoice', 'journal_type': 'sale', 'esnotacredito': False, 'esnotadebito': True}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para crear una Nota de Débito.
+              </p><p>
+                
+              </p>
+            </field>
+        </record>
+        
+        <record id="action_invoice_nd_tree" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="account.invoice_tree"/>
+            <field name="act_window_id" ref="action_invoice_nd"/>
+        </record>
+
+        <record id="action_invoice_nd_form" model="ir.actions.act_window.view">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="account.invoice_form"/>
+            <field name="act_window_id" ref="action_invoice_nd"/>
+        </record>
+
+        <menuitem action="action_invoice_nd"
+                  id="menu_action_invoice_nd"
+                  parent="account.menu_finance_receivables_documents"
+                  sequence="1"/>
+        
+<!-- Comprobantes de Compra -->
+        <record id="account.action_invoice_tree2" model="ir.actions.act_window">
+            <field name="name">Vendor Bills</field>
+            <field name="res_model">account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('esnotacredito','=',False),('esnotadebito','=',False),('type','=','in_invoice')]</field>
+            <field name="context">{'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase', 'esnotacredito': False, 'esnotadebito': False}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        </record>
+        
+<!-- Nota de Crédito Proveedor -->
+        <record id="account.action_invoice_in_refund" model="ir.actions.act_window">
+            <field name="name">Vendor Credit Notes</field>
+            <field name="res_model">account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','in_refund')]</field>
+            <field name="context">{'default_type': 'in_refund', 'type': 'in_refund', 'journal_type': 'purchase', 'esnotacredito': True, 'esnotadebito': False}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        </record>
+
+<!-- Creo el Menú de Nota de Débito Proveedor -->
+        <record id="action_supplier_invoice_nd" model="ir.actions.act_window">
+            <field name="name">Notas de Débito de Proveedor</field>
+            <field name="res_model">account.invoice</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','in_invoice'),('esnotadebito','=',True)]</field>
+            <field name="context">{'type':'in_invoice', 'journal_type': 'purchase', 'esnotacredito': False, 'esnotadebito': True}</field>
+            <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para crear una Nota de Débito.
+              </p><p>
+                
+              </p>
+            </field>
+        </record>
+        
+        <record id="action_supplier_invoice_nd_tree" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="account.invoice_supplier_tree"/>
+            <field name="act_window_id" ref="action_supplier_invoice_nd"/>
+        </record>
+
+        <record id="action_supplier_invoice_nd_form" model="ir.actions.act_window.view">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="account.invoice_supplier_form"/>
+            <field name="act_window_id" ref="action_supplier_invoice_nd"/>
+        </record>
+
+        <menuitem action="action_supplier_invoice_nd"
+                  id="menu_action_supplier_invoice_nd"
+                  parent="account.menu_finance_payables_documents"
+                  sequence="1"/>
+        
+<!-- Creo la vista Detalle de Factura de Compra para poder analizar a detalle -->
+        <record id="view_supplier_line_filter_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.line.select.sunat</field>
+            <field name="model">account.invoice.line</field>
+            <field name="arch" type="xml">
+                <search string="Search Invoice Line">
+                    <field name="partner_id" string="Proveedor"/>
+                    <field name="reference" string="Num. Comprobante"/>
+                    <field name="product_id" string="Producto"/>
+                    <field name="name" string="Descripción"/>
+                    <field name="account_id" string="Cta. Contable"/>
+                    <field name="account_analytic_id" string="Cta. Analítica"/>
+                    <field name="currency_id" string="Moneda"/>
+                    <field name="state" string="Estado"/>
+                    <filter name="state" string="Estado" context="{'group_by':'state'}"/>
+                    <filter name="currency_id" string="Moneda" context="{'group_by':'currency_id'}"/>
+                    <filter name="invoice_type" string="Tipo Comprobante" context="{'group_by':'invoice_type'}"/>
+                    <filter name="date" string="Mes Contable" context="{'group_by':'date'}"/>
+                    <filter name="partner_id" string="Proveedor" context="{'group_by':'partner_id'}"/>
+                    <filter name="reference" string="Num. Coprobante" context="{'group_by':'reference'}"/>
+                    <filter name="product_id" string="Producto" context="{'group_by':'product_id'}"/>
+                    <filter name="name" string="Descripción" context="{'group_by':'name'}"/>
+                    <filter name="account_id" string="Cta. Contable" context="{'group_by':'account_id'}"/>
+                    <filter name="account_analytic_id" string="Cta. Analítica" context="{'group_by':'account_analytic_id'}"/>
+                </search>
+            </field>
+        </record>
+        
+        <record id="view_supplier_line_tree_sunat" model="ir.ui.view">
+            <field name="name">account.invoice.line.tree.sunat</field>
+            <field name="model">account.invoice.line</field>
+            <field name="arch" type="xml">
+                <tree string="Invoice Line">
+                    <field name="state"/>
+                    <field name="invoice_type" invisible="1"/>
+                    <field name="date"/>
+                    <field name="partner_id"/>
+                    <field name="reference"/>
+                    <field name="invoice_id" invisible="1"/>
+                    <field name="product_id"/>
+                    <field name="name"/>
+                    <field name="account_id"/>
+                    <field name="account_analytic_id"/>
+                    <field name="quantity"/>
+                    <field name="uom_id"/>
+                    <field name="price_unit"/>
+                    <field name="price_subtotal"/>
+                    <field name="invoice_line_tax_ids" widget="many2many_tags"/>
+                    <field name="currency_id"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="action_supplier_invoice_line_sunat" model="ir.actions.act_window">
+            <field name="name">Detalle de Comprobantes</field>
+            <field name="res_model">account.invoice.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_supplier_line_tree_sunat"/>
+            <field name="domain">[('invoice_type','in',('in_invoice','in_refund'))]</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                No crear Lineas de Facturas desde acá
+              </p><p>
+                
+              </p>
+            </field>
+        </record>
+        
+        <menuitem id="menu_action_supplier_invoice_line_sunat"
+            action="action_supplier_invoice_line_sunat"
+            name="Detalle de Comprobantes"
+            sequence="20" parent="account.menu_finance_payables_documents"/>
+        
+
+    </data>
+</odoo>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

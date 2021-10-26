@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_account_payment_tree_sunat" model="ir.ui.view">
+            <field name="name">account.payment.tree.sunat</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_tree"/>
+            <field name="arch" type="xml">
+                <field name="journal_id" position="after">
+                    <field name="communication"/>
+                </field>
+                <field name="state" position="after">
+                    <field name="sec_journal_libro"/>
+                </field>
+            </field>
+        </record>
+        
+        <record id="view_account_supplier_payment_tree_sunat" model="ir.ui.view">
+            <field name="name">account.supplier.payment.tree.sunat</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_supplier_payment_tree"/>
+            <field name="arch" type="xml">
+                <field name="journal_id" position="after">
+                    <field name="communication"/>
+                </field>
+                <field name="state" position="after">
+                    <field name="sec_journal_libro"/>
+                </field>
+            </field>
+        </record>
+        
+        <record id="view_account_payment_search_sunat" model="ir.ui.view">
+            <field name="name">account.payment.search.sunat</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_search"/>
+            <field name="arch" type="xml">
+                <field name="name" position="replace">
+                    <field name="name" filter_domain="['|', '|', '|', ('name','ilike',self), ('communication','ilike',self), ('sec_journal_libro','ilike',self)]" string="Description"/>
+                </field>
+            </field>
+        </record>
+        
+        <record id="view_account_payment_form_sunat" model="ir.ui.view">
+            <field name="name">account.payment.form.sunat</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <field name="communication" position="after">
+                    <field name="sec_journal_libro" readonly="1"/>
+                </field>
+            </field>
+        </record>
+        
+        <record id="view_account_payment_invoice_form_sunat" model="ir.ui.view">
+            <field name="name">account.payment.invoice.form.sunat</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="communication" position="after">
+                    <field name="sec_journal_libro" readonly="1"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

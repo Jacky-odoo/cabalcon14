@@ -1,25 +1,227 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* account
+# * account
+#
 # Translators:
-# Oswaldo Lopez <olopez@cabalcom.com.pe>, 2021
-
+# José Balbuena <jbalbuena@cabalcon.com.pe>, 2019
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 11.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-25 10:15+0000\n"
-"PO-Revision-Date: 2020-09-07 08:09+0000\n"
-"Last-Translator: Cécile Collart <cco@odoo.com>, 2021\n"
-"Language-Team: Spanish (https://www.transifex.com/odoo/teams/41243/es/)\n"
+"POT-Creation-Date: 2017-11-16 08:08+0000\n"
+"PO-Revision-Date: 2017-11-16 08:08+0000\n"
+"Last-Translator: Martin Trigaux <mat@odoo.com>, 2017\n"
+"Language-Team: Spanish (Peru) (https://www.transifex.com/odoo/teams/41243/"
+"es_PE/)\n"
+"Language: es_PE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: account
-#: model:ir.actions.act_window,name:account.action_move_in_refund_type
-#: model:ir.ui.menu,name:account.menu_action_move_in_refund_type
-msgid "Refunds"
-msgstr "Notas de Credito"
+#. openerp-web
+#: selection:account.invoice,state:0 selection:account.invoice.report,state:0
+#: code:addons/account/static/src/xml/account_payment.xml:82
+#: model:ir.ui.view,arch_db:account.view_account_invoice_filter
+#, python-format
+msgid "Open"
+msgstr "Emitido"
+
+#. module: account
+#: selection:account.invoice,state:0 selection:account.invoice.report,state:0
+#: selection:account.payment,state:0
+msgid "Cancelled"
+msgstr "Anulado"
+
+#. module: account
+#: selection:account.invoice,type:0 selection:account.invoice.report,type:0
+#: code:addons/account/models/account_payment.py:677
+#, python-format
+msgid "Customer Credit Note"
+msgstr "Nota de Crédito de Cliente"
+
+#. module: account
+#: model:ir.actions.act_window,name:account.action_invoice_out_refund
+#: model:ir.ui.menu,name:account.menu_action_invoice_out_refund
+msgid "Customer Credit Notes"
+msgstr "Notas de Crédito de Cliente"
+
+#. module: account
+#: selection:account.invoice,type:0 selection:account.invoice.report,type:0
+msgid "Customer Invoice"
+msgstr "Comprobante de Cliente"
+
+#. module: account
+#: code:addons/account/models/chart_template.py:193
+#: model:ir.actions.act_window,name:account.action_invoice_tree1
+#: model:ir.ui.menu,name:account.menu_action_invoice_tree1
+#: model:ir.ui.view,arch_db:account.account_planner
+#, python-format
+msgid "Customer Invoices"
+msgstr "Comprobantes de Cliente"
+
+
+#. module: account
+#: selection:account.invoice,type:0 selection:account.invoice.report,type:0
+#: code:addons/account/models/account_invoice.py:443
+#: code:addons/account/models/account_invoice.py:1215
+#: model:ir.ui.view,arch_db:account.invoice_supplier_form
+#: model:ir.ui.view,arch_db:account.portal_invoice_page
+#: model:ir.ui.view,arch_db:account.report_invoice_document
+#, python-format
+msgid "Vendor Bill"
+msgstr "Comprobante de Proveedor"
+
+#. module: account
+#: code:addons/account/models/account_invoice.py:444
+#, python-format
+msgid "Vendor Bill - %s"
+msgstr "Comprobante de Proveedor - %s"
+
+#. module: account
+#: code:addons/account/models/chart_template.py:194
+#: model:ir.actions.act_window,name:account.action_invoice_tree2
+#: model:ir.ui.menu,name:account.menu_action_invoice_tree2
+#: model:ir.ui.view,arch_db:account.account_planner
+#, python-format
+msgid "Vendor Bills"
+msgstr "Comprobantes de Proveedor"
+
+
+#. module: account
+#: selection:account.invoice,type:0 selection:account.invoice.report,type:0
+#: code:addons/account/models/account_invoice.py:445
+#: code:addons/account/models/account_payment.py:680
+#: model:ir.ui.view,arch_db:account.portal_invoice_page
+#: model:ir.ui.view,arch_db:account.report_invoice_document
+#, python-format
+msgid "Vendor Credit Note"
+msgstr "Nota de Crédito de Proveedor"
+
+#. module: account
+#: code:addons/account/models/account_invoice.py:446
+#, python-format
+msgid "Vendor Credit Note - %s"
+msgstr "Nota de Crédito de Proveedor - %s"
+
+#. module: account
+#: model:ir.actions.act_window,name:account.action_invoice_in_refund
+#: model:ir.ui.menu,name:account.menu_action_invoice_in_refund
+msgid "Vendor Credit Notes"
+msgstr "Notas de Crédito de Proveedor"
+
+#. module: account
+#: code:addons/account/models/account_invoice.py:1217
+#, python-format
+msgid "Vendor Credit note"
+msgstr "Nota de Crédito de Proveedor"
+
+
+#. module: account
+#: code:addons/account/models/account_payment.py:229
+#: model:ir.ui.menu,name:account.menu_action_account_payments_receivable
+#, python-format
+msgid "Payments"
+msgstr "Cobranzas"
+
+
+#. module: account
+#: model:ir.ui.view,arch_db:account.invoice_form
+#: model:ir.ui.view,arch_db:account.view_account_invoice_refund
+msgid "Add Credit Note"
+msgstr "Emitir Nota de Crédito"
+
+#. module: account
+#: code:addons/account/models/account_invoice.py:441
+#: code:addons/account/models/account_invoice.py:1216
+#: code:addons/account/wizard/account_invoice_refund.py:111
+#: model:ir.actions.act_window,name:account.action_account_invoice_refund
+#: model:ir.model,name:account.model_account_invoice_refund
+#: model:ir.ui.view,arch_db:account.account_journal_dashboard_kanban_view
+#: model:ir.ui.view,arch_db:account.invoice_form
+#: model:ir.ui.view,arch_db:account.invoice_supplier_form
+#: model:ir.ui.view,arch_db:account.portal_invoice_page
+#: model:ir.ui.view,arch_db:account.report_invoice_document
+#: model:ir.ui.view,arch_db:account.view_account_invoice_refund
+#: model:ir.ui.view,arch_db:account.view_account_invoice_report_search
+#, python-format
+msgid "Credit Note"
+msgstr "Nota de Crédito"
+
+#. module: account
+#: code:addons/account/models/account_invoice.py:442
+#, python-format
+msgid "Credit Note - %s"
+msgstr "Nota de Crédito - %s"
+
+#. module: account
+#: model:ir.ui.view,arch_db:account.account_journal_dashboard_kanban_view
+msgid "Credit Note Bill"
+msgstr "Nota de Crédito"
+
+#. module: account
+#: model:ir.model.fields,field_description:account.field_account_invoice_refund_date_invoice
+msgid "Credit Note Date"
+msgstr "Fecha de Nota de Crédito"
+
+#. module: account
+#: model:ir.model.fields,field_description:account.field_account_journal_refund_sequence_id
+msgid "Credit Note Entry Sequence"
+msgstr "Secuencia de entradas de Nota de Crédito"
+
+#. module: account
+#: model:ir.ui.view,arch_db:account.account_journal_dashboard_kanban_view
+msgid "Credit Notes"
+msgstr "Notas de Crédito"
+
+#. module: account
+#: model:ir.model.fields,field_description:account.field_account_journal_refund_sequence_number_next
+msgid "Credit Notes: Next Number"
+msgstr "Notas de Crédito: Número siguiente"
+
+#. module: account
+#: selection:account.invoice.refund,filter_refund:0
+msgid "Create a draft credit note"
+msgstr "Crear un borrador de Nota de Crédito"
+
+#. module: account
+#: selection:account.invoice.refund,filter_refund:0
+msgid "Cancel: create credit note and reconcile"
+msgstr "Cancelar: crear Nota de Crédito y conciliar"
+
+
+#. module: account
+#: selection:account.invoice.refund,filter_refund:0
+msgid "Modify: create credit note, reconcile and create a new draft invoice"
+msgstr ""
+"Modificar: emitir Nota de Crédito, conciliar y crear una nueva factura en "
+"borrador"
+
+
+#. module: account
+#: model:ir.ui.view,arch_db:account.view_account_invoice_refund
+msgid ""
+"You will be able to edit and validate this\n"
+"                                credit note directly or keep it draft,\n"
+"                                waiting for the document to be issued by\n"
+"                                your supplier/customer."
+msgstr ""
+"Podrá editar y validar esta\n"
+"Nota de Crédito directamente o dejarla como borrador, \n"
+"en espera de que su proveedor/cliente expida el \n"
+"documento correspondiente."
+
+
+#. module: account
+#: model:ir.ui.view,arch_db:account.invoice_form
+#: model:ir.ui.view,arch_db:account.invoice_supplier_form
+msgid "Draft Credit Note"
+msgstr "Borrador de Nota de Crédito"
+
+
+#. module: account
+#. module: account_type_menu
+#: model:ir.ui.menu,name:account_type_menu.account_type_menu
+msgid "Account Types"
+msgstr "Tipos de Cuentas"
